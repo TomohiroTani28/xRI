@@ -8,12 +8,18 @@ def check_and_update_post_history(content):
     try:
         with sqlite3.connect(db_path) as conn:
             cur = conn.cursor()
-            cur.execute("CREATE TABLE IF NOT EXISTS posts (id INTEGER PRIMARY KEY, content TEXT UNIQUE)")
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS posts (
+                    id INTEGER PRIMARY KEY,
+                    content TEXT UNIQUE
+                )
+            """)
             cur.execute("INSERT INTO posts (content) VALUES (?)", (content,))
+            conn.commit()
             return True
     except sqlite3.IntegrityError:
         logging.info("Duplicate content detected in database.")
         return False
     except Exception as e:
-        logging.error(f"Database error: {e}")
+        logging.error("Database error: %s", e, exc_info=True)
         return False
