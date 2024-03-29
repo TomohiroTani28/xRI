@@ -10,5 +10,6 @@ def post_to_x(content):
     try:
         response = requests.post(api_url, json=data, headers=headers, timeout=10)
         response.raise_for_status()
+        logging.info("Content successfully posted to X.")
     except requests.exceptions.RequestException as e:
-        logging.error(f"Failed to post content to X: {e}")
+        logging.error("Failed to post content to X: %s", e, exc_info=True)
