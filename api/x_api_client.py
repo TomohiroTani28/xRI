@@ -1,15 +1,17 @@
-import requests
+import aiohttp
+import asyncio
 import logging
 import os
 
-def post_to_x(content):
+async def post_to_x(content):
     api_url = "https://api.x.com/2/tweets"
     headers = {"Authorization": f"Bearer {os.getenv('X_API_KEY')}"}
     data = {"text": content}
     
-    try:
-        response = requests.post(api_url, json=data, headers=headers, timeout=10)
-        response.raise_for_status()
-        logging.info("Content successfully posted to X.")
-    except requests.exceptions.RequestException as e:
-        logging.error("Failed to post content to X: %s", e, exc_info=True)
+    async with aiohttp.ClientSession() as session:
+        try:
+            async with session.post(api_url, json=data, headers=headers) as response:
+                response.raise_for_status()
+                logging.info("Content successfully posted to X.")
+        except aiohttp.ClientError as e:
+            logging.error(f"Failed to post content to X: {e}")
