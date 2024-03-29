@@ -1,16 +1,11 @@
-import requests
+from llama import Llama
 import logging
-import os
 
 def generate_content():
-    api_url = "https://example.com/generate"
-    headers = {"Authorization": f"Bearer {os.getenv('AI_API_KEY')}"}
-    data = {"prompt": "インドネシアの不動産投資についての情報", "length": 250}
-    
     try:
-        response = requests.post(api_url, json=data, headers=headers, timeout=10)
-        response.raise_for_status()
-        return response.json().get("content")
-    except requests.exceptions.RequestException as e:
-        logging.error(f"Failed to generate content: {e}")
+        llama = Llama()
+        content = llama.generate(prompt="インドネシアの不動産投資についての情報", length=250)
+        return content
+    except Exception as e:
+        logging.error(f"Failed to generate content with Llama2: {e}")
         return None
