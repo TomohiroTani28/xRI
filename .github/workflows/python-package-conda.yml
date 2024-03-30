@@ -32,15 +32,13 @@ jobs:
       run: |
         mamba env update --file environment.yml --name base
 
-    # 以下のステップを追加: requirements.txtの存在をチェック
-    - name: Check for requirements.txt
+    - name: Check for requirements.txt and install Pip dependencies
       run: |
         if [ -f requirements.txt ]; then
           echo "requirements.txt exists. Installing dependencies..."
           pip install -r requirements.txt
         else
           echo "requirements.txt does not exist. Skipping pip install."
-        fi
 
     - name: Lint with flake8
       run: |
@@ -54,4 +52,4 @@ jobs:
 
     - name: Run tests with pytest
       run: |
-        pytest tests/
+        pytest test/test_example.py
