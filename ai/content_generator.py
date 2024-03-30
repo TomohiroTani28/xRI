@@ -14,14 +14,15 @@ def generate_content():
         # Load the tokenizer using the Hugging Face token for authentication
         tokenizer = AutoTokenizer.from_pretrained(model, use_auth_token=hf_token)
         
-        # Initialize the pipeline for text generation with optimized settings
+        # Initialize the pipeline for text generation
+        # As of now, we maintain synchronous execution here as the transformers pipeline
+        # does not natively support asynchronous execution.
+        # Adjust the device parameter according to your setup. For M1 Macs, CPU execution is more common.
         generation_pipeline = pipeline(
             "text-generation",
             model=model,
             tokenizer=tokenizer,
-            torch_dtype=torch.float16,  # Use float16 for faster computation
-            # Optimize model loading based on the available device (GPU/CPU)
-            device=0 if torch.cuda.is_available() else -1,
+            device=-1,  # Use CPU for execution, as M1 Macs do not support CUDA.
         )
 
         prompts = [
@@ -33,7 +34,7 @@ def generate_content():
         ]
         
         selected_prompt = random.choice(prompts)
-        # Generate content with the selected prompt, ensuring efficient memory use
+        # Generate content with the selected prompt
         generated_outputs = generation_pipeline(selected_prompt, max_length=250, num_return_sequences=1, truncation=True)
         content = generated_outputs[0]['generated_text']
         return content
