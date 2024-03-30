@@ -4,11 +4,10 @@ channels:
 dependencies:
   - python=3.10
   - aiohttp
-  - sqlite
-  - dotenv
-  - pip
+  - sqlite  # SQLiteは通常Pythonに内蔵されています。別途インストールする必要がある場合は、この行を修正してください。
   - pip:
+      - python-dotenv
       - llama  # このライブラリがPyPIで利用可能であれば
-      - asyncio
-      - logging
-      - random
+      - asyncio  # asyncioはPythonの標準ライブラリであり、別途インストールする必要はありません。
+      - logging  # loggingもPythonの標準ライブラリです。
+      - random  # randomはPythonの標準ライブラリであるため、インストール不要です。
