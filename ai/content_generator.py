@@ -1,7 +1,6 @@
-from llama import Llama
+from llama2 import Llama
 import logging
 import random
-
 
 def generate_content():
     try:
