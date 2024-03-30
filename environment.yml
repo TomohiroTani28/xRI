@@ -4,8 +4,9 @@ channels:
 dependencies:
   - python=3.8
   - aiohttp
-  - pytest  # Ensure pytest is included here
-  - flake8  # Ensure flake8 is included here
+  - pytest
+  - flake8
+  - pip
   - pip:
       - python-dotenv
       - llama2==0.0.1.dev0
