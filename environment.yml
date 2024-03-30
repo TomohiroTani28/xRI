@@ -1,0 +1,14 @@
+name: xRI
+channels:
+  - defaults
+dependencies:
+  - python=3.10
+  - aiohttp
+  - sqlite
+  - dotenv
+  - pip
+  - pip:
+      - llama  # このライブラリがPyPIで利用可能であれば
+      - asyncio
+      - logging
+      - random
