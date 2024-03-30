@@ -2,6 +2,7 @@ from llama import Llama
 import logging
 import random
 
+
 def generate_content():
     try:
         prompts = [

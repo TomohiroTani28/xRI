@@ -1,7 +1,7 @@
 import aiohttp
-import asyncio
 import logging
 import os
+
 
 async def post_to_x(content):
     api_url = "https://api.x.com/2/tweets"
