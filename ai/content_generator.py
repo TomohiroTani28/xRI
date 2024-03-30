@@ -1,3 +1,4 @@
+import torch
 from transformers import AutoTokenizer, pipeline
 import logging
 import random
@@ -9,7 +10,7 @@ hf_token = os.getenv("HF_TOKEN")
 def generate_content():
     try:
         model = "meta-llama/Llama-2-7b-chat-hf"
-        tokenizer = AutoTokenizer.from_pretrained(model, token=hf_token)  # use_auth_token を token に変更
+        tokenizer = AutoTokenizer.from_pretrained(model, use_auth_token=hf_token)
         
         generation_pipeline = pipeline(
             "text-generation",
@@ -17,7 +18,7 @@ def generate_content():
             tokenizer=tokenizer,
             torch_dtype=torch.float16,
             device_map="auto",
-            token=hf_token
+            use_auth_token=hf_token
         )
 
         prompts = [
