@@ -2,12 +2,8 @@ name: xRI
 channels:
   - defaults
 dependencies:
-  - python=3.10
+  - python=3.8
   - aiohttp
-  - sqlite  # SQLiteは通常Pythonに内蔵されています。別途インストールする必要がある場合は、この行を修正してください。
   - pip:
       - python-dotenv
-      - llama  # このライブラリがPyPIで利用可能であれば
-      - asyncio  # asyncioはPythonの標準ライブラリであり、別途インストールする必要はありません。
-      - logging  # loggingもPythonの標準ライブラリです。
-      - random  # randomはPythonの標準ライブラリであるため、インストール不要です。
+      - llama
