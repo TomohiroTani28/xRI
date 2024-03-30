@@ -10,4 +10,8 @@ dependencies:
   - pip:
       - python-dotenv
       - transformers
+<<<<<<< HEAD
       - torch
+=======
+      - torch
+>>>>>>> 1baaa87d33ba0a9ec8b45e4fa0e0931183101540
