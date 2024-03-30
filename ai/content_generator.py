@@ -9,19 +9,17 @@ hf_token = os.getenv("HF_TOKEN")
 
 def generate_content():
     try:
-        # Specify the model to use
-        model = "meta-llama/Llama-2-7b-chat-hf"
+        # Specify the model to use (Assuming 'model' variable is already set to the desired model ID)
+        model = "EleutherAI/gpt-neo-2.7B"  # 例としてGPT-Neoを使用; Llama2の適切な代替を選択してください
         # Load the tokenizer using the Hugging Face token for authentication
         tokenizer = AutoTokenizer.from_pretrained(model, use_auth_token=hf_token)
         
-        # Initialize the pipeline for text generation with optimized settings
+        # Initialize the pipeline for text generation with the model
         generation_pipeline = pipeline(
             "text-generation",
             model=model,
             tokenizer=tokenizer,
-            torch_dtype=torch.float16,  # Use float16 for faster computation
-            # Optimize model loading based on the available device (GPU/CPU)
-            device=0 if torch.cuda.is_available() else -1,
+            device=-1,  # Use CPU for execution, as M1 Macs do not support CUDA.
         )
 
         prompts = [
@@ -33,10 +31,10 @@ def generate_content():
         ]
         
         selected_prompt = random.choice(prompts)
-        # Generate content with the selected prompt, ensuring efficient memory use
+        # Generate content with the selected prompt
         generated_outputs = generation_pipeline(selected_prompt, max_length=250, num_return_sequences=1, truncation=True)
         content = generated_outputs[0]['generated_text']
         return content
     except Exception as e:
-        logging.error(f"Failed to generate content with Llama2: {e}")
+        logging.error(f"Failed to generate content: {e}")
         return None
