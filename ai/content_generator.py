@@ -14,14 +14,7 @@ def generate_content():
         # Load the tokenizer using the Hugging Face token for authentication
         tokenizer = AutoTokenizer.from_pretrained(model, use_auth_token=hf_token)
         
-<<<<<<< HEAD
-        # Initialize the pipeline for text generation
-        # As of now, we maintain synchronous execution here as the transformers pipeline
-        # does not natively support asynchronous execution.
-        # Adjust the device parameter according to your setup. For M1 Macs, CPU execution is more common.
-=======
         # Initialize the pipeline for text generation with the model
->>>>>>> c9b9b05c965150e8a30c0e36a4d08c509ffe4662
         generation_pipeline = pipeline(
             "text-generation",
             model=model,
