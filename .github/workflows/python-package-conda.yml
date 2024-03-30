@@ -26,13 +26,18 @@ jobs:
           pip install -r requirements.txt
         fi
 
+    - name: Install flake8
+      shell: bash -l {0}
+      run: |
+        conda run -n xRI pip install flake8
+
     - name: Lint with flake8
       shell: bash -l {0}
       run: |
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+        conda run -n xRI flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        conda run -n xRI flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
     - name: Run tests with pytest
       shell: bash -l {0}
       run: |
-        pytest test/test_example.py
+        conda run -n xRI pytest test/test_example.py
