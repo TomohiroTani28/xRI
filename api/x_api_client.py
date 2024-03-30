@@ -23,7 +23,7 @@ async def post_to_x(content):
     
     # 非同期処理のためにrun_in_executorを使用
     loop = asyncio.get_event_loop()
-    response = await loop.run_in_executor(None, lambda: oauth.post(api_url, json=data))
+    response = await loop.run_in_executor(None, lambda: oauth.post(api_url, data={"text": content}))
     
     try:
         response.raise_for_status()
