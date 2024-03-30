@@ -4,6 +4,7 @@ channels:
 dependencies:
   - python=3.8
   - aiohttp
+  - pip
   - pip:
       - python-dotenv
       - llama2==0.0.1.dev0
