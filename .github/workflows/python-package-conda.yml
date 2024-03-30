@@ -39,7 +39,6 @@ jobs:
           pip install -r requirements.txt
         else
           echo "requirements.txt does not exist. Skipping pip install."
-        fi
 
     - name: Lint with flake8
       run: |
@@ -51,7 +50,6 @@ jobs:
       run: |
         conda install pytest
 
-    # 更新されたテストの実行部分
     - name: Run tests with pytest
       run: |
-        pytest test_example.py
+        pytest test/test_example.py
