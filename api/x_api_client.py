@@ -2,12 +2,14 @@ import aiohttp
 import logging
 import os
 
-
 async def post_to_x(content):
     api_url = "https://api.x.com/2/tweets"
     headers = {"Authorization": f"Bearer {os.getenv('X_API_KEY')}"}
-    data = {"text": content}
-    
+    # Line too long (E501) issue fixed by breaking into multiple lines
+    data = {
+        "text": content
+    }
+
     async with aiohttp.ClientSession() as session:
         try:
             async with session.post(api_url, json=data, headers=headers) as response:
