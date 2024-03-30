@@ -6,6 +6,9 @@ from api.x_api_client import post_to_x
 from db.database import check_and_update_post_history
 from utils.helpers import setup_logging
 
+# .envファイルから環境変数を読み込む
+load_dotenv()
+
 async def main():
     setup_logging()
     logging.info("Starting content generation process.")
