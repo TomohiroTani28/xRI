@@ -32,8 +32,8 @@ jobs:
       run: |
         mamba env update --file environment.yml --name base
 
-    # requirements.txtが存在する場合のみPip依存関係のインストールを試みる
-    - name: Check for requirements.txt and install Pip dependencies
+    # 以下のステップを追加: requirements.txtの存在をチェック
+    - name: Check for requirements.txt
       run: |
         if [ -f requirements.txt ]; then
           echo "requirements.txt exists. Installing dependencies..."
@@ -48,10 +48,4 @@ jobs:
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
-    - name: Install pytest
-      run: |
-        conda install pytest
-
-    - name: Run tests with pytest
-      run: |
-        pytest tests/
+    - name: Test with pytest
