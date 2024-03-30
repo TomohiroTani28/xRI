@@ -9,15 +9,19 @@ hf_token = os.getenv("HF_TOKEN")
 
 def generate_content():
     try:
-        # Specify the model to use
-        model = "meta-llama/Llama-2-7b-chat-hf"
+        # Specify the model to use (Assuming 'model' variable is already set to the desired model ID)
+        model = "EleutherAI/gpt-neo-2.7B"  # 例としてGPT-Neoを使用; Llama2の適切な代替を選択してください
         # Load the tokenizer using the Hugging Face token for authentication
         tokenizer = AutoTokenizer.from_pretrained(model, use_auth_token=hf_token)
         
+<<<<<<< HEAD
         # Initialize the pipeline for text generation
         # As of now, we maintain synchronous execution here as the transformers pipeline
         # does not natively support asynchronous execution.
         # Adjust the device parameter according to your setup. For M1 Macs, CPU execution is more common.
+=======
+        # Initialize the pipeline for text generation with the model
+>>>>>>> c9b9b05c965150e8a30c0e36a4d08c509ffe4662
         generation_pipeline = pipeline(
             "text-generation",
             model=model,
@@ -39,5 +43,5 @@ def generate_content():
         content = generated_outputs[0]['generated_text']
         return content
     except Exception as e:
-        logging.error(f"Failed to generate content with Llama2: {e}")
+        logging.error(f"Failed to generate content: {e}")
         return None
