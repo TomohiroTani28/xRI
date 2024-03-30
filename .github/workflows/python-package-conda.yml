@@ -32,23 +32,16 @@ jobs:
       run: |
         mamba env update --file environment.yml --name base
 
-    - name: Check for requirements.txt and install Pip dependencies
+    - name: Install Pip dependencies if requirements.txt exists
       run: |
         if [ -f requirements.txt ]; then
-          echo "requirements.txt exists. Installing dependencies..."
           pip install -r requirements.txt
-        else
-          echo "requirements.txt does not exist. Skipping pip install."
+        fi
 
     - name: Lint with flake8
       run: |
-        conda install flake8
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-
-    - name: Install pytest
-      run: |
-        conda install pytest
 
     - name: Run tests with pytest
       run: |
