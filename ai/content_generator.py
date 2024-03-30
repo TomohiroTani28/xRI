@@ -18,7 +18,7 @@ def generate_content():
             tokenizer=tokenizer,
             torch_dtype=torch.float16,
             device_map="auto",
-            use_auth_token=hf_token
+            token=hf_token
         )
 
         prompts = [
@@ -30,7 +30,7 @@ def generate_content():
         ]
         
         selected_prompt = random.choice(prompts)
-        generated_outputs = generation_pipeline(selected_prompt, max_length=250, num_return_sequences=1)
+        generated_outputs = generation_pipeline(selected_prompt, max_length=250, num_return_sequences=1, truncation=True)
         content = generated_outputs[0]['generated_text']
         return content
     except Exception as e:
