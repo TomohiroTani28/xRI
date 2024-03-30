@@ -1,12 +1,15 @@
 from transformers import AutoTokenizer, pipeline
-import torch
 import logging
 import random
+import os
+
+# 環境変数から Hugging Face トークンを取得
+hf_token = os.getenv("HF_TOKEN")
 
 def generate_content():
     try:
         model = "meta-llama/Llama-2-7b-chat-hf"
-        tokenizer = AutoTokenizer.from_pretrained(model)
+        tokenizer = AutoTokenizer.from_pretrained(model, use_auth_token=hf_token)
         
         generation_pipeline = pipeline(
             "text-generation",
@@ -14,6 +17,7 @@ def generate_content():
             tokenizer=tokenizer,
             torch_dtype=torch.float16,
             device_map="auto",
+            use_auth_token=hf_token
         )
 
         prompts = [
