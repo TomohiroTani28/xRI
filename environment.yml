@@ -6,4 +6,4 @@ dependencies:
   - aiohttp
   - pip:
       - python-dotenv
-      - llama
+      - llama2==0.0.1.dev0
