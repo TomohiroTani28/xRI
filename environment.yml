@@ -9,4 +9,5 @@ dependencies:
   - pip
   - pip:
       - python-dotenv
-      - llama2==0.0.1.dev0
+      - transformers
+      - torch
