@@ -11,26 +11,15 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Set up Python 3.10
+    - name: Set up Python
       uses: actions/setup-python@v3
       with:
-        python-version: '3.10'
+        python-version: '3.8'
 
-    - name: Add conda to system path
+    - name: Install Conda dependencies
       run: |
-        echo $CONDA/bin >> $GITHUB_PATH
-
-    - name: Update Conda
-      run: |
-        conda update -n base -c defaults conda -y
-
-    - name: Install Mamba
-      run: |
-        conda install mamba -n base -c conda-forge
-
-    - name: Install Conda dependencies with Mamba
-      run: |
-        mamba env update --file environment.yml --name base
+        conda env create -f environment.yml
+        echo "conda activate xRI" >> $GITHUB_ENV
 
     - name: Install Pip dependencies if requirements.txt exists
       run: |
@@ -40,9 +29,9 @@ jobs:
 
     - name: Lint with flake8
       run: |
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+        conda run -n xRI flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        conda run -n xRI flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
     - name: Run tests with pytest
       run: |
-        pytest test/test_example.py
+        conda run -n xRI pytest test/test_example.py
