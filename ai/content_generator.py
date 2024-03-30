@@ -11,12 +11,11 @@ def generate_content():
         model = "meta-llama/Llama-2-7b-chat-hf"
         tokenizer = AutoTokenizer.from_pretrained(model, use_auth_token=hf_token)
         
+        # トランスフォーマーパイプラインの設定
         generation_pipeline = pipeline(
             "text-generation",
             model=model,
             tokenizer=tokenizer,
-            torch_dtype=torch.float16,
-            device_map="auto",
             use_auth_token=hf_token
         )
 
