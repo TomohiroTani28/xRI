@@ -40,16 +40,20 @@ def generate_content():
         return ["Content generation encountered an error."]
 
 def refine_generated_text(text):
-    # Split the text by Japanese full stops and keep up to the last full stop within character limit
-    sentences = re.split(r'(。)', text)
-    refined_text, current_length = "", 0
-    for i in range(0, len(sentences)-1, 2):  # Process sentence and its delimiter as one unit
-        if current_length + len(sentences[i] + sentences[i+1]) <= 280:
-            refined_text += sentences[i] + sentences[i+1]
-            current_length += len(sentences[i] + sentences[i+1])
-        else:
-            break
-    return refined_text
+    # Attempt to cut off at the last complete sentence within character limit
+    if len(text) > 280:
+        # Japanese full stops (。) and other sentence-ending punctuation marks are used to split the text
+        sentences = re.split(r'([。！？])', text)
+        refined_text, current_length = "", 0
+        for i in range(0, len(sentences)-1, 2):  # Sentence and its punctuation mark are processed together
+            if current_length + len(sentences[i] + sentences[i+1]) <= 280:
+                refined_text += sentences[i] + sentences[i+1]
+                current_length += len(sentences[i] + sentences[i+1])
+            else:
+                break  # Stop adding sentences once the limit is reached
+        text = refined_text
+
+    return text
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
