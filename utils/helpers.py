@@ -29,14 +29,12 @@ def split_text_into_posts(text, max_length=280):
     current_post = ""
 
     for sentence in sentences:
-        # 追加する文と現在のポストを合わせた長さが最大値を超える場合、現在のポストをpostsに追加
-        if len(current_post + sentence) > max_length:
+        if len(current_post + sentence) + 1 > max_length:
             posts.append(current_post.strip())
             current_post = sentence
         else:
-            current_post += " " + sentence
+            current_post += " " + sentence if current_post else sentence
 
-    # 残りのテキストを追加
     if current_post:
         posts.append(current_post.strip())
 
