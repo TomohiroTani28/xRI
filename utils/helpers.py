@@ -30,13 +30,21 @@ def split_text_into_posts(text, max_length=280):
     current_post = ""
 
     for sentence in sentences:
-        if len(current_post + sentence) + 1 > max_length:
-            posts.append(current_post.strip())
-            current_post = sentence
+        # Check if adding the next sentence exceeds the limit
+        next_post = f"{current_post} {sentence}".strip()
+        if len(next_post) <= max_length:
+            current_post = next_post
         else:
-            current_post += " " + sentence if current_post else sentence
+            if current_post:  # Avoid appending empty strings
+                posts.append(current_post)
+            current_post = sentence
 
+    # Adding the last portion if it's not empty
     if current_post:
-        posts.append(current_post.strip())
+        posts.append(current_post)
+
+    # Debug logging to verify the length of each post
+    for i, post in enumerate(posts):
+        logging.debug(f"Post {i+1}: {len(post)} characters long.")
 
     return posts
