@@ -3,47 +3,41 @@ import logging
 import os
 import re
 from datetime import datetime
+import itertools
 import random
 
 model_name = "rinna/japanese-gpt2-medium"
 hf_token = os.getenv("HF_TOKEN")
 
 def generate_content():
-    try:
-        set_seed(random.randint(1, 10000))
-        generation_pipeline = pipeline(
-            "text-generation",
-            model=model_name,
-            token=hf_token,
-            device=-1,
-            truncation=True
-        )
+    set_seed(random.randint(1, 10000))  # Enhance randomness
+    generation_pipeline = pipeline(
+        "text-generation",
+        model=model_name,
+        token=hf_token,
+        device=-1,  # Use CPU
+        truncation=True
+    )
 
-        base_prompts = [
-            "インドネシアの不動産市場の展望",
-            "不動産投資のチャンス",
-            "不動産市場の成功事例",
-            "不動産投資の戦略",
-            "不動産市場の将来予測"
-        ]
+    # Dynamic prompt parts for more flexibility and expandability
+    locations = ["ジャカルタ", "バリ", "バンドン", "スラバヤ"]
+    aspects = ["の不動産市場", "での不動産投資", "の不動産開発プロジェクト"]
+    timings = ["最新情報", "2024年トレンド", "投資機会"]
 
-        date_str = datetime.now().strftime("%Y年%m月%d日")
-        prompts = [f"{prompt} {date_str} {random.choice(['情報', 'ニュース', '分析'])}" for prompt in base_prompts]
+    date_str = datetime.now().strftime("%Y年%m月%d日")
+    base_prompts = [f"インドネシアの{location}{aspect}に関する{timing} {date_str} 更新" for location, aspect, timing in itertools.product(locations, aspects, timings)]
 
-        contents = []
-        for prompt in prompts:
-            max_length = random.randint(240, 280)
-            generated_output = generation_pipeline(prompt, max_length=max_length, num_return_sequences=1)
-            content = refine_generated_text(generated_output[0]['generated_text'])
-            if content:
-                contents.append(content)
-                if len(contents) >= 5:
-                    break
+    contents = []
+    for prompt in random.sample(base_prompts, len(base_prompts)):  # Shuffle to vary the prompts used
+        max_length = random.randint(240, 280)
+        generated_output = generation_pipeline(prompt, max_length=max_length, num_return_sequences=1)
+        content = refine_generated_text(generated_output[0]['generated_text'])
+        if content:
+            contents.append(content)
+            if len(contents) >= 5:  # Limiting the number of contents to keep it manageable
+                break
 
-        return contents if contents else ["Unable to generate content."]
-    except Exception as e:
-        logging.error(f"Content generation failed: {e}")
-        return ["Content generation encountered an error."]
+    return contents if contents else ["Unable to generate content due to an unexpected issue."]
 
 def refine_generated_text(text):
     if len(text) > 280:

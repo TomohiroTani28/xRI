@@ -20,6 +20,7 @@ async def post_to_x(contents):
     )
 
     for content in contents:
+        await asyncio.sleep(random.randint(1, 5))  # Slight delay to avoid burst requests
         payload = json.dumps({"text": content})
         headers = {"Content-Type": "application/json"}
 
@@ -31,20 +32,16 @@ async def post_to_x(contents):
         elif response.status_code == 429:
             retry_after = int(response.headers.get('Retry-After', 900))
             logging.warning(f"Rate limit exceeded. Retrying after {retry_after} seconds.")
-            await asyncio.sleep(retry_after)
-            # Retry posting
+            time.sleep(retry_after)  # Adjust to async wait if necessary for your environment
+            # Consider a retry strategy here
         else:
             await handle_error(response)
 
 async def handle_error(response):
-    error_message = f"Failed to post content to Twitter: Status Code {response.status_code}"
+    error_message = "Failed to post content to Twitter."
     try:
-        response_body = response.json()
-        if 'errors' in response_body:
-            error_details = "; ".join([f"Error: {error['message']}" for error in response_body['errors']])
-            error_message += f"; Error detail: {error_details}"
-        else:
-            error_message += "; No error details provided by API."
+        error_details = response.json().get('errors', [])
+        error_message += " " + "; ".join([error.get('message', 'Unknown error') for error in error_details])
     except Exception as e:
-        error_message += f"; Additionally, failed to parse JSON response: {str(e)}"
+        error_message += f" Additionally, failed to parse JSON response: {str(e)}"
     logging.error(error_message)
