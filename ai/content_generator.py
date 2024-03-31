@@ -19,22 +19,21 @@ def generate_content():
             device=-1,  # Use CPU
         )
 
+        # Each prompt is designed to generate concise content likely to fit within a single Twitter post
         prompts = [
-            "インドネシアの不動産市場に関する最新情報",
-            "インドネシアでの不動産投資のメリット",
-            "インドネシアの不動産投資成功事例",
-            "インドネシアでの不動産投資機会",
-            "インドネシアの不動産市場の未来"
+            "Brief update on Indonesia's real estate market",
+            "Key benefit of real estate investment in Indonesia",
+            "A success story in Indonesia's real estate investment",
+            "Current opportunity in Indonesian real estate investment",
+            "Forecast for Indonesia's real estate market"
         ]
 
         contents = []
-        for _ in range(5):  # Generate up to 5 posts
-            selected_prompt = random.choice(prompts)
-            generated_output = generation_pipeline(selected_prompt, max_length=280, num_return_sequences=1, truncation=True)
+        for prompt in prompts:
+            generated_output = generation_pipeline(prompt, max_length=250, num_return_sequences=1, truncation=True)
             content = generated_output[0]['generated_text'].strip()
-            contents.append(content)
-            if len(contents) >= 5: 
-                break
+            if len(content) <= 280:  # Ensure content fits within Twitter's character limit
+                contents.append(content)
 
         return contents
     except Exception as e:
