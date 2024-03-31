@@ -1,6 +1,5 @@
 from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
 import logging
-import random
 import os
 
 # Load Hugging Face token from environment variable
@@ -19,23 +18,26 @@ def generate_content():
             device=-1,  # Use CPU
         )
 
-        # Each prompt is designed to generate concise content likely to fit within a single Twitter post
+        # Refine prompts to encourage concise output
         prompts = [
-            "Brief update on Indonesia's real estate market",
-            "Key benefit of real estate investment in Indonesia",
-            "A success story in Indonesia's real estate investment",
-            "Current opportunity in Indonesian real estate investment",
-            "Forecast for Indonesia's real estate market"
+            "Briefly describe the current state of Indonesia's real estate market.",
+            "What's a major benefit of investing in Indonesian real estate?",
+            "Share a short success story in Indonesian real estate investment.",
+            "Highlight an opportunity in Indonesian real estate right now.",
+            "Predict the future of Indonesia's real estate market in a few sentences."
         ]
 
         contents = []
         for prompt in prompts:
-            generated_output = generation_pipeline(prompt, max_length=250, num_return_sequences=1, truncation=True)
+            generated_output = generation_pipeline(prompt, max_length=60, num_return_sequences=1, truncation=True)
             content = generated_output[0]['generated_text'].strip()
-            if len(content) <= 280:  # Ensure content fits within Twitter's character limit
+            # Further checks to ensure conciseness and relevance could be implemented here
+            if len(content) <= 280:
                 contents.append(content)
+            if len(contents) >= 5:
+                break
 
-        return contents
+        return contents if contents else ["Content generation failed."]
     except Exception as e:
         logging.error(f"Failed to generate content: {e}")
-        return []
+        return ["Content generation encountered an error."]
