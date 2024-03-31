@@ -20,7 +20,6 @@ def format_datetime(date_time=None, date_format="%Y-%m-%d %H:%M:%S"):
     return date_time.strftime(date_format)
 
 def split_text_into_sentences(text):
-    """テキストを文に分割します。日本語テキストを考慮して、句点を基準に分割します。"""
     sentences = re.split(r'(?<=[。！？])\s*', text)
     return sentences
 
@@ -30,19 +29,17 @@ def split_text_into_posts(text, max_length=280):
     current_post = ""
 
     for sentence in sentences:
-        # Check if adding the next sentence exceeds the limit
         next_post = f"{current_post} {sentence}".strip()
         if len(next_post) <= max_length:
             current_post = next_post
         else:
-            if current_post:  # Avoid appending empty strings
+            if current_post:
                 posts.append(current_post)
-                logging.debug(f"Added post: {current_post} (Length: {len(current_post)})")  # Enhanced debug log
+                logging.debug(f"Added post: {current_post} (Length: {len(current_post)})")
             current_post = sentence
 
-    # Adding the last portion if it's not empty
     if current_post:
         posts.append(current_post)
-        logging.debug(f"Added final post: {current_post} (Length: {len(current_post)})")  # Enhanced debug log
+        logging.debug(f"Added final post: {current_post} (Length: {len(current_post)})")
 
     return posts
