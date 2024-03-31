@@ -15,21 +15,19 @@ async def main():
     try:
         content = generate_content()
         if content:
-            logging.debug(f"Original content: {content[:100]}...")  # Preview the first 100 characters of the content
+            logging.debug(f"Original content: {content[:100]}...")  # Provides a snapshot of the generated content
             content = clean_text(content)
             posts = split_text_into_posts(content)
             for post in posts:
-                logging.info(f"Attempting to post: {post[:50]}... (Length: {len(post)})")  # Preview first 50 chars
-                try:
-                    if await check_and_update_post_history(post):
+                logging.info(f"Attempting to post: {post[:50]}... (Length: {len(post)})")
+                if await check_and_update_post_history(post):
+                    try:
                         await post_to_x([post])
                         logging.info("Post successful.")
-                    else:
-                        logging.warning("Duplicate content detected. Skipping posting.")
-                except Exception as e:
-                    logging.error(f"Failed during posting to Twitter: {e}")
-        else:
-            logging.warning("No content generated. Skipping posting.")
+                    except Exception as e:
+                        logging.error(f"Failed during posting to Twitter: {e}")
+                else:
+                    logging.warning("Duplicate content detected. Skipping posting.")
     except Exception as e:
         logging.error(f"An overall error occurred: {e}")
 
