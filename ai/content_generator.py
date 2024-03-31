@@ -8,7 +8,8 @@ hf_token = os.getenv("HF_TOKEN")
 
 def generate_content():
     try:
-        model = "rinna/japanese-gpt-1.3b"
+        # 代替のモデルを使用
+        model = "rinna/japanese-gpt2-medium"  # 代替のモデル名に変更
         generation_pipeline = pipeline(
             "text-generation",
             model=model,
