@@ -3,7 +3,7 @@ import logging
 import os
 import re
 
-model_name = "rinna/japanese-gpt2-medium"  # Japanese-specific model
+model_name = "rinna/japanese-gpt2-medium"
 hf_token = os.getenv("HF_TOKEN")
 
 def generate_content():
@@ -13,7 +13,8 @@ def generate_content():
             "text-generation",
             model=model_name,
             token=hf_token,
-            device=-1
+            device=-1,  # Use CPU
+            truncation=True
         )
 
         prompts = [
@@ -26,7 +27,7 @@ def generate_content():
 
         contents = []
         for prompt in prompts:
-            generated_output = generation_pipeline(prompt, max_length=280, num_return_sequences=1, truncation=True)
+            generated_output = generation_pipeline(prompt, max_length=280, num_return_sequences=1)
             content = refine_generated_text(generated_output[0]['generated_text'])
             if content:
                 contents.append(content)
@@ -39,9 +40,16 @@ def generate_content():
         return ["Content generation encountered an error."]
 
 def refine_generated_text(text):
-    sentences = re.split(r'(?<=[。！？])\s', text)
-    refined_text = ''.join(sentences[:2]) if len(sentences) > 1 else sentences[0]
-    return refined_text[:280]
+    # Split the text by Japanese full stops and keep up to the last full stop within character limit
+    sentences = re.split(r'(。)', text)
+    refined_text, current_length = "", 0
+    for i in range(0, len(sentences)-1, 2):  # Process sentence and its delimiter as one unit
+        if current_length + len(sentences[i] + sentences[i+1]) <= 280:
+            refined_text += sentences[i] + sentences[i+1]
+            current_length += len(sentences[i] + sentences[i+1])
+        else:
+            break
+    return refined_text
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
