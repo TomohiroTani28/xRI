@@ -28,15 +28,13 @@ async def post_to_x(contents):
         if response.status_code == 201:
             logging.info("Content successfully posted to Twitter.")
         else:
-            error_message = f"Failed to post content to Twitter: Status Code {response.status_code}"
             try:
                 response_body = response.json()
                 if 'errors' in response_body:
-                    for error in response_body['errors']:
-                        detail = error.get('detail', 'No detailed error message provided.')
-                        error_message += f"; Error detail: {detail}"
+                    error_details = "; ".join([f"Error: {error.get('message')}" for error in response_body['errors']])
+                    error_message = f"Failed to post content to Twitter: Status Code {response.status_code}; Error detail: {error_details}"
                 else:
-                    error_message += "; No error details provided by API."
-            except Exception:
-                error_message += "; Failed to parse JSON response."
+                    error_message = f"Failed to post content to Twitter: Status Code {response.status_code}; No error details provided by API."
+            except Exception as e:
+                error_message = f"Failed to post content to Twitter: Status Code {response.status_code}; Also, failed to parse JSON response: {str(e)}"
             logging.error(error_message)
