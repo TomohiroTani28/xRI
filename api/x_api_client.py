@@ -4,6 +4,7 @@ import json
 from requests_oauthlib import OAuth1Session
 import os
 import time
+import random
 
 async def post_to_x(contents):
     api_url = "https://api.twitter.com/2/tweets"

@@ -3,7 +3,6 @@ import logging
 import os
 import re
 from datetime import datetime
-import itertools
 import random
 
 model_name = "rinna/japanese-gpt2-medium"
@@ -19,22 +18,22 @@ def generate_content():
         truncation=True
     )
 
-    # Dynamic prompt parts for more flexibility and expandability
     locations = ["ジャカルタ", "バリ", "バンドン", "スラバヤ"]
     aspects = ["の不動産市場", "での不動産投資", "の不動産開発プロジェクト"]
     timings = ["最新情報", "2024年トレンド", "投資機会"]
 
     date_str = datetime.now().strftime("%Y年%m月%d日")
-    base_prompts = [f"インドネシアの{location}{aspect}に関する{timing} {date_str} 更新" for location, aspect, timing in itertools.product(locations, aspects, timings)]
+    base_prompts = [f"インドネシアの{location}{aspect}に関する{timing} {date_str} 更新" 
+                    for location, aspect, timing in itertools.product(locations, aspects, timings)]
 
     contents = []
-    for prompt in random.sample(base_prompts, len(base_prompts)):  # Shuffle to vary the prompts used
+    for prompt in random.sample(base_prompts, len(base_prompts)):
         max_length = random.randint(240, 280)
         generated_output = generation_pipeline(prompt, max_length=max_length, num_return_sequences=1)
         content = refine_generated_text(generated_output[0]['generated_text'])
         if content:
             contents.append(content)
-            if len(contents) >= 5:  # Limiting the number of contents to keep it manageable
+            if len(contents) >= 5:
                 break
 
     return contents if contents else ["Unable to generate content due to an unexpected issue."]
