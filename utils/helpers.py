@@ -30,20 +30,19 @@ def split_text_into_posts(text, max_length=280):
     current_post = ""
 
     for sentence in sentences:
-        # ここで次のポストを作成して、長さをチェック
+        # Check if adding the next sentence exceeds the limit
         next_post = f"{current_post} {sentence}".strip()
         if len(next_post) <= max_length:
             current_post = next_post
         else:
-            if current_post:  # 空でない場合のみ追加
+            if current_post:  # Avoid appending empty strings
                 posts.append(current_post)
-                logging.debug(f"Added post: {current_post} (Length: {len(current_post)})")
+                logging.debug(f"Added post: {current_post} (Length: {len(current_post)})")  # Enhanced debug log
             current_post = sentence
 
-    # 残りを追加
+    # Adding the last portion if it's not empty
     if current_post:
         posts.append(current_post)
-        logging.debug(f"Added post: {current_post} (Length: {len(current_post)})")
+        logging.debug(f"Added final post: {current_post} (Length: {len(current_post)})")  # Enhanced debug log
 
     return posts
-
