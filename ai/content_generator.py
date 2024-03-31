@@ -1,23 +1,24 @@
+from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
 import logging
-import os
 import random
-from transformers import pipeline
+import os
 
 # Load Hugging Face token from environment variable
 hf_token = os.getenv("HF_TOKEN")
 
 def generate_content():
     try:
-        model = "EleutherAI/gpt-neo-2.7B"
-        tokenizer = model  # tokenizerの指定をmodel名で直接行う
-
-        # テキスト生成のpipelineを初期化
+        model_name = "EleutherAI/gpt-neo-2.7B"
+        # モデルとトークナイザーを個別に読み込む
+        model = AutoModelForCausalLM.from_pretrained(model_name, use_auth_token=hf_token)
+        tokenizer = AutoTokenizer.from_pretrained(model_name, use_auth_token=hf_token)
+        
+        # 読み込んだモデルとトークナイザーを使用してpipelineを設定
         generation_pipeline = pipeline(
             "text-generation",
             model=model,
             tokenizer=tokenizer,
-            device=-1,  # CPU使用
-            use_auth_token=hf_token  # Hugging Faceのトークンを使用
+            device=-1,  # CPUを使用
         )
 
         prompts = [
@@ -27,7 +28,7 @@ def generate_content():
             "インドネシアでの不動産投資機会",
             "インドネシアの不動産市場の未来"
         ]
-        
+
         contents = []
         for _ in range(5):  # 5つの独立したポストを生成
             selected_prompt = random.choice(prompts)
