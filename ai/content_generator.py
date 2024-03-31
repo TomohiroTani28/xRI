@@ -20,11 +20,11 @@ def generate_content():
 
         # Refine prompts to encourage concise output
         prompts = [
-            "Briefly describe the current state of Indonesia's real estate market.",
-            "What's a major benefit of investing in Indonesian real estate?",
-            "Share a short success story in Indonesian real estate investment.",
-            "Highlight an opportunity in Indonesian real estate right now.",
-            "Predict the future of Indonesia's real estate market in a few sentences."
+            "インドネシアの不動産市場に関する最新情報",
+            "インドネシアでの不動産投資のメリット",
+            "インドネシアの不動産投資成功事例",
+            "インドネシアでの不動産投資機会",
+            "インドネシアの不動産市場の未来"
         ]
 
         contents = []
