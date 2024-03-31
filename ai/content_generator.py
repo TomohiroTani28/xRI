@@ -2,6 +2,8 @@ from transformers import pipeline, set_seed
 import logging
 import os
 import re
+from datetime import datetime
+import random
 
 model_name = "rinna/japanese-gpt2-medium"
 hf_token = os.getenv("HF_TOKEN")
@@ -17,7 +19,7 @@ def generate_content():
             truncation=True
         )
 
-        prompts = [
+        base_prompts = [
             "インドネシアの不動産市場に関する最新情報",
             "インドネシアでの不動産投資のメリット",
             "インドネシアの不動産投資成功事例",
@@ -25,9 +27,15 @@ def generate_content():
             "インドネシアの不動産市場の未来"
         ]
 
+        # Generate a date string for today to append to prompts for freshness
+        date_str = datetime.now().strftime("%Y年%m月%d日")
+        prompts = [f"{prompt} - {date_str}" for prompt in base_prompts]
+
         contents = []
         for prompt in prompts:
-            generated_output = generation_pipeline(prompt, max_length=280, num_return_sequences=1)
+            # Add randomness to the max_length for more variability
+            max_length = random.randint(240, 280)
+            generated_output = generation_pipeline(prompt, max_length=max_length, num_return_sequences=1)
             content = refine_generated_text(generated_output[0]['generated_text'])
             if content:
                 contents.append(content)
@@ -40,19 +48,16 @@ def generate_content():
         return ["Content generation encountered an error."]
 
 def refine_generated_text(text):
-    # Attempt to cut off at the last complete sentence within character limit
     if len(text) > 280:
-        # Japanese full stops (。) and other sentence-ending punctuation marks are used to split the text
         sentences = re.split(r'([。！？])', text)
         refined_text, current_length = "", 0
-        for i in range(0, len(sentences)-1, 2):  # Sentence and its punctuation mark are processed together
+        for i in range(0, len(sentences)-1, 2):
             if current_length + len(sentences[i] + sentences[i+1]) <= 280:
                 refined_text += sentences[i] + sentences[i+1]
                 current_length += len(sentences[i] + sentences[i+1])
             else:
-                break  # Stop adding sentences once the limit is reached
+                break
         text = refined_text
-
     return text
 
 if __name__ == "__main__":
