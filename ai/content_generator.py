@@ -1,63 +1,69 @@
 import logging
+from transformers import AutoTokenizer, pipeline
+import torch
 import os
-import replicate
-import asyncio
 
 # Initialize logging
 logging.basicConfig(level=logging.INFO)
 
-# Retrieve the Replicate API token from the environment variable
-REPLICATE_API_TOKEN = os.getenv("REPLICATE_API_TOKEN")
-if not REPLICATE_API_TOKEN:
-    logging.error("REPLICATE_API_TOKEN not set. Please set the environment variable.")
+# Set up Hugging Face authentication
+HF_TOKEN = os.getenv("HF_TOKEN")
+if not HF_TOKEN:
+    logging.error("HF_TOKEN not set. Please set the environment variable.")
     exit(1)
 
-# Set the Replicate API token for authentication
-replicate.api_token = REPLICATE_API_TOKEN
+os.environ["TRANSFORMERS_CACHE"] = "./transformers_cache_dir"  # Optional: Set a cache directory for transformers
 
-async def generate_content_with_llama2(prompt):
+def setup_llama2_pipeline():
     """
-    Generate content using the Llama 2 API via the replicate client.
+    Setup the Llama 2 pipeline for text generation.
+    """
+    model_name = "meta-llama/Llama-2-7b-chat-hf"
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    generation_pipeline = pipeline(
+        "text-generation",
+        model=model_name,
+        tokenizer=tokenizer,
+        torch_dtype=torch.float16,
+        device=0 if torch.cuda.is_available() else -1  # Use GPU if available
+    )
+    return generation_pipeline
+
+def generate_text_with_llama2(prompt, generation_pipeline):
+    """
+    Generate text using the Llama 2 model.
     """
     try:
-        # Perform the prediction using the Llama 2 model
-        response = await replicate.predictions.create(
-            model="meta/llama-2-70b-chat",
-            input={
-                "prompt": prompt,
-                "temperature": 0.5,
-                "max_tokens": 500,
-                "top_p": 1,
-                "frequency_penalty": 0,
-                "presence_penalty": 0,
-            },
-            version="e3cbd1da23f3c76e9f4454f26f8bd6a7bcf01c540763655efb2fb49cd097e5ee",
+        sequences = generation_pipeline(
+            prompt,
+            do_sample=True,
+            top_k=10,
+            num_return_sequences=1,
+            eos_token_id=generation_pipeline.tokenizer.eos_token_id,
+            max_length=200
         )
-        # Check for the presence of text in the response
-        if 'text' in response:
-            return response['text'].strip()
-        else:
-            return "Content generation successful, but no text was returned."
+        return sequences[0]["generated_text"]
     except Exception as e:
-        logging.error(f"Failed to generate content: {e}")
-        return "Failed to generate content due to an exception."
+        logging.error(f"Failed to generate text: {e}")
+        return None
 
-async def main():
-    # Define the prompts for content generation
+def main():
+    """
+    Main function to generate text based on given prompts.
+    """
     prompts = [
         "2024年のインドネシアの不動産市場のトレンドについて分析してください。",
-        "現在、インドネシアの不動産セクターで最良の投資機会は何ですか？",
-        "2024年にインドネシアで優勢になる不動産開発プロジェクトの予測を提供してください。",
-        "インドネシアの経済成長とその不動産市場との関係について説明してください。",
+        # Add additional prompts as needed
     ]
-
-    # Iterate through the prompts and generate content for each
+    
+    generation_pipeline = setup_llama2_pipeline()
+    
     for prompt in prompts:
-        content = await generate_content_with_llama2(prompt)
-        if content:
-            logging.info(f"Generated content for prompt '{prompt}': {content}")
+        generated_text = generate_text_with_llama2(prompt, generation_pipeline)
+        if generated_text:
+            logging.info(f"Generated content for prompt '{prompt}':\n{generated_text}\n")
         else:
             logging.error(f"Failed to generate content for prompt '{prompt}'.")
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
