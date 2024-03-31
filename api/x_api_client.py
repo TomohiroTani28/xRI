@@ -27,12 +27,12 @@ async def post_to_x(contents):  # 変更: 単一のcontentから複数のcontent
         
         try:
             response.raise_for_status()
-            logging.info("Content successfully posted to Twitter.")
+            logging.info("コンテンツをTwitterに正常に投稿しました。")
         except Exception as e:
-            error_message = f"Failed to post content to Twitter: {e}"
+            error_message = f"Twitterへのコンテンツ投稿に失敗しました: {e}"
             try:
                 response_body = response.json()
-                error_message += f" Response: {response_body}"
+                error_message += f" レスポンス: {response_body}"
             except Exception as json_error:
-                error_message += " Failed to parse JSON response."
+                error_message += " JSONレスポンスの解析に失敗しました。"
             logging.error(error_message)
