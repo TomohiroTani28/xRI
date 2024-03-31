@@ -4,7 +4,7 @@ import json
 from requests_oauthlib import OAuth1Session
 import os
 
-async def post_to_x(contents):  # 変更: 単一のcontentから複数のcontentsへ
+async def post_to_x(contents):
     api_url = "https://api.twitter.com/2/tweets"
     consumer_key = os.getenv("CONSUMER_KEY")
     consumer_secret = os.getenv("CONSUMER_SECRET")
@@ -18,7 +18,7 @@ async def post_to_x(contents):  # 変更: 単一のcontentから複数のcontent
         resource_owner_secret=access_token_secret
     )
 
-    for content in contents:  # 複数のcontentsをループで処理
+    for content in contents:
         payload = json.dumps({"text": content})
         headers = {"Content-Type": "application/json"}
 

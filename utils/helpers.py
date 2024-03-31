@@ -20,17 +20,15 @@ def format_datetime(date_time=None, date_format="%Y-%m-%d %H:%M:%S"):
     return date_time.strftime(date_format)
 
 def split_text_into_sentences(text):
-    """テキストを文に分割します。"""
     sentences = re.split(r'(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?|！)\s', text)
     return sentences
 
 def split_text_into_posts(text, max_length=280):
-    """テキストを自然な区切りで分割し、各ポストが280文字を超えないようにします。"""
     sentences = split_text_into_sentences(text)
     posts = []
     post = ""
     for sentence in sentences:
-        if len(post + sentence) + 1 <= max_length:  # +1 for space
+        if len(post + sentence) + 1 <= max_length:
             post += sentence + " "
         else:
             posts.append(post.strip())
