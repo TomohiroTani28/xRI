@@ -25,24 +25,16 @@ async def post_to_x(contents):
         loop = asyncio.get_event_loop()
         response = await loop.run_in_executor(None, lambda: oauth.post(api_url, data=payload, headers=headers))
         
-        if response.status_code == 201:  # Successfully created
+        if response.status_code in [200, 201]:  # Successfully created or OK
             logging.info("Content successfully posted to Twitter.")
         else:
             try:
-                # Attempt to raise status to trigger exception for handling
-                response.raise_for_status()
-            except Exception as e:
-                error_message = f"Failed to post content to Twitter: {e}"
-                # Attempt to extract detailed error information
-                try:
-                    response_body = response.json()
-                    error_details = response_body.get('errors', [])
-                    for error in error_details:
+                error_message = f"Failed to post content to Twitter: {response.status_code}"
+                response_body = response.json()
+                if 'errors' in response_body:
+                    for error in response_body['errors']:
                         detail = error.get('detail', 'No detailed error message provided.')
                         error_message += f" Error detail: {detail}"
-                except Exception as json_parse_error:
-                    error_message += " Additionally, failed to parse JSON response."
                 logging.error(error_message)
-            else:
-                # Log as successful only if no exceptions are raised and status is not 201
-                logging.info("Post successful, but received unexpected status code.")
+            except Exception as json_parse_error:
+                logging.error(f"Failed to parse JSON response: {json_parse_error}")
