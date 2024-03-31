@@ -9,52 +9,45 @@ model_name = "rinna/japanese-gpt2-medium"
 hf_token = os.getenv("HF_TOKEN")
 
 def generate_content():
-    try:
-        set_seed(42)
-        generation_pipeline = pipeline(
-            "text-generation",
-            model=model_name,
-            token=hf_token,
-            device=-1,  # Use CPU
-            truncation=True
-        )
+    set_seed(42)
+    generation_pipeline = pipeline(
+        "text-generation",
+        model=model_name,
+        token=hf_token,
+        device=-1,  # Use CPU
+        truncation=True
+    )
 
-        base_prompts = [
-            "インドネシアの不動産市場に関する最新情報",
-            "インドネシアでの不動産投資のメリット",
-            "インドネシアの不動産投資成功事例",
-            "インドネシアでの不動産投資機会",
-            "インドネシアの不動産市場の未来"
-        ]
+    date_str = datetime.now().strftime("%Y年%m月%d日")
+    base_prompts = [
+        "インドネシアの不動産市場に関する最新情報",
+        "インドネシアでの不動産投資のメリット",
+        "インドネシアの不動産投資成功事例",
+        "インドネシアでの不動産投資機会",
+        "インドネシアの不動産市場の未来"
+    ]
+    prompts = [f"{prompt} - {date_str}" for prompt in base_prompts]
 
-        # Generate a date string for today to append to prompts for freshness
-        date_str = datetime.now().strftime("%Y年%m月%d日")
-        prompts = [f"{prompt} - {date_str}" for prompt in base_prompts]
+    contents = []
+    for prompt in prompts:
+        max_length = random.randint(240, 280)
+        generated_output = generation_pipeline(prompt, max_length=max_length, num_return_sequences=1)
+        content = refine_generated_text(generated_output[0]['generated_text'])
+        if content:
+            contents.append(content)
+            if len(contents) >= 5:
+                break
 
-        contents = []
-        for prompt in prompts:
-            # Add randomness to the max_length for more variability
-            max_length = random.randint(240, 280)
-            generated_output = generation_pipeline(prompt, max_length=max_length, num_return_sequences=1)
-            content = refine_generated_text(generated_output[0]['generated_text'])
-            if content:
-                contents.append(content)
-                if len(contents) >= 5:
-                    break
-
-        return contents if contents else ["Unable to generate content."]
-    except Exception as e:
-        logging.error(f"Content generation failed: {e}")
-        return ["Content generation encountered an error."]
+    return contents if contents else ["Unable to generate content."]
 
 def refine_generated_text(text):
     if len(text) > 280:
         sentences = re.split(r'([。！？])', text)
         refined_text, current_length = "", 0
-        for i in range(0, len(sentences)-1, 2):
-            if current_length + len(sentences[i] + sentences[i+1]) <= 280:
-                refined_text += sentences[i] + sentences[i+1]
-                current_length += len(sentences[i] + sentences[i+1])
+        for i in range(0, len(sentences) - 1, 2):
+            if current_length + len(sentences[i] + sentences[i + 1]) <= 280:
+                refined_text += sentences[i] + sentences[i + 1]
+                current_length += len(sentences[i] + sentences[i + 1])
             else:
                 break
         text = refined_text
