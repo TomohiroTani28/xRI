@@ -4,6 +4,7 @@ import os
 import re
 from datetime import datetime
 import random
+import itertools  # Import statement added
 
 model_name = "rinna/japanese-gpt2-medium"
 hf_token = os.getenv("HF_TOKEN")
@@ -18,6 +19,7 @@ def generate_content():
         truncation=True
     )
 
+    # Dynamic prompt parts for more flexibility and expandability
     locations = ["ジャカルタ", "バリ", "バンドン", "スラバヤ"]
     aspects = ["の不動産市場", "での不動産投資", "の不動産開発プロジェクト"]
     timings = ["最新情報", "2024年トレンド", "投資機会"]
