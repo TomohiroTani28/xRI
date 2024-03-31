@@ -8,12 +8,16 @@ hf_token = os.getenv("HF_TOKEN")
 
 def generate_content():
     try:
-        model = "rinna/japanese-gpt2-medium"
+        model = "EleutherAI/gpt-neo-2.7B"
+        tokenizer = model  # tokenizerの指定をmodel名で直接行う
+
+        # テキスト生成のpipelineを初期化
         generation_pipeline = pipeline(
             "text-generation",
             model=model,
-            tokenizer=model,
-            device=-1  # CPUを使用
+            tokenizer=tokenizer,
+            device=-1,  # CPU使用
+            use_auth_token=hf_token  # Hugging Faceのトークンを使用
         )
 
         prompts = [
@@ -23,11 +27,18 @@ def generate_content():
             "インドネシアでの不動産投資機会",
             "インドネシアの不動産市場の未来"
         ]
+        
+        contents = []
+        for _ in range(5):  # 5つの独立したポストを生成
+            selected_prompt = random.choice(prompts)
+            generated_output = generation_pipeline(selected_prompt, max_length=280, num_return_sequences=1, truncation=True)
+            content = generated_output[0]['generated_text'].strip()
+            if len(content) <= 280:
+                contents.append(content)
+            if len(contents) >= 5:  # 生成したポストが5つに達したら終了
+                break
 
-        selected_prompt = random.choice(prompts)
-        generated_outputs = generation_pipeline(selected_prompt, max_length=250, num_return_sequences=1, truncation=True)
-        content = generated_outputs[0]['generated_text']
-        return content
+        return contents
     except Exception as e:
         logging.error(f"Failed to generate content: {e}")
-        return None
+        return []
