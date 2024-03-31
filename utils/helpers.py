@@ -19,16 +19,13 @@ def format_datetime(date_time=None, date_format="%Y-%m-%d %H:%M:%S"):
         date_time = datetime.now()
     return date_time.strftime(date_format)
 
-def split_text_into_sentences(text):
-    sentences = re.split(r'(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?|！)\s', text)
-    return sentences
-
 def split_text_into_posts(text, max_length=280):
     sentences = split_text_into_sentences(text)
     posts = []
     current_post = ""
 
     for sentence in sentences:
+        # Check if adding the next sentence exceeds the limit
         if len(current_post + sentence) + 1 > max_length:
             posts.append(current_post.strip())
             current_post = sentence
