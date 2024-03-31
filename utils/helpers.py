@@ -26,13 +26,18 @@ def split_text_into_sentences(text):
 def split_text_into_posts(text, max_length=280):
     sentences = split_text_into_sentences(text)
     posts = []
-    post = ""
+    current_post = ""
+
     for sentence in sentences:
-        if len(post + sentence) + 1 <= max_length:
-            post += sentence + " "
+        # 追加する文と現在のポストを合わせた長さが最大値を超える場合、現在のポストをpostsに追加
+        if len(current_post + sentence) > max_length:
+            posts.append(current_post.strip())
+            current_post = sentence
         else:
-            posts.append(post.strip())
-            post = sentence + " "
-    if post:
-        posts.append(post.strip())
+            current_post += " " + sentence
+
+    # 残りのテキストを追加
+    if current_post:
+        posts.append(current_post.strip())
+
     return posts
