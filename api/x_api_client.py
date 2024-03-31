@@ -31,9 +31,10 @@ async def post_to_x(contents):
         elif response.status_code == 429:
             retry_after = int(response.headers.get('Retry-After', 900))
             logging.warning(f"Rate limit exceeded. Retrying after {retry_after} seconds.")
-            time.sleep(retry_after)
+            await asyncio.sleep(retry_after)
+            # Retry posting
         else:
-            handle_error(response)
+            await handle_error(response)
 
 async def handle_error(response):
     error_message = f"Failed to post content to Twitter: Status Code {response.status_code}"
