@@ -1,7 +1,6 @@
 import logging
 import re
 from datetime import datetime
-from utils.helpers import setup_logging, split_text_into_posts, clean_text
 
 def setup_logging(level=logging.INFO):
     logging.basicConfig(level=level, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -21,16 +20,15 @@ def format_datetime(date_time=None, date_format="%Y-%m-%d %H:%M:%S"):
     return date_time.strftime(date_format)
 
 def split_text_into_posts(text, max_length=280):
-    """Splits text into parts with a maximum length, ensuring not to cut words."""
+    """テキストを自然な区切りで分割し、各ポストが280文字を超えないようにします。"""
     posts = []
     while text:
         if len(text) <= max_length:
             posts.append(text)
             break
-        # Find the last space within the maximum length
         cut_off = text.rfind(' ', 0, max_length)
-        if cut_off == -1:  # If no space found, force split at max_length
+        if cut_off == -1:  # スペースが見つからない場合は、max_lengthで強制的に分割
             cut_off = max_length
-        posts.append(text[:cut_off].rstrip())
-        text = text[cut_off:].lstrip()
+        posts.append(text[:cut_off])
+        text = text[cut_off:].strip()
     return posts
