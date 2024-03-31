@@ -15,13 +15,15 @@ async def main():
     try:
         content = generate_content()
         if content:
+            logging.debug(f"Original content: {content[:100]}...")  # Preview the first 100 characters of the content
             content = clean_text(content)
             posts = split_text_into_posts(content)
             for post in posts:
-                logging.info(f"Posting to Twitter: {post} (Length: {len(post)})")
+                logging.info(f"Attempting to post: {post[:50]}... (Length: {len(post)})")  # Preview first 50 chars
                 try:
                     if await check_and_update_post_history(post):
                         await post_to_x([post])
+                        logging.info("Post successful.")
                     else:
                         logging.warning("Duplicate content detected. Skipping posting.")
                 except Exception as e:
@@ -29,7 +31,7 @@ async def main():
         else:
             logging.warning("No content generated. Skipping posting.")
     except Exception as e:
-        logging.error(f"An error occurred: {e}")
+        logging.error(f"An overall error occurred: {e}")
 
 if __name__ == "__main__":
     asyncio.run(main())
