@@ -9,7 +9,6 @@ hf_token = os.getenv("HF_TOKEN")
 def generate_content():
     try:
         model_name = "EleutherAI/gpt-neo-2.7B"
-        # モデルとトークナイザーを個別に読み込み、use_auth_tokenをtokenに変更
         model = AutoModelForCausalLM.from_pretrained(model_name, token=hf_token)
         tokenizer = AutoTokenizer.from_pretrained(model_name, token=hf_token)
         
@@ -17,7 +16,7 @@ def generate_content():
             "text-generation",
             model=model,
             tokenizer=tokenizer,
-            device=-1,  # CPU使用
+            device=-1,  # Use CPU
         )
 
         prompts = [
@@ -29,14 +28,12 @@ def generate_content():
         ]
 
         contents = []
-        for _ in range(5):  # 5つの独立したポストを生成
+        for _ in range(5):  # Generate up to 5 posts
             selected_prompt = random.choice(prompts)
             generated_output = generation_pipeline(selected_prompt, max_length=280, num_return_sequences=1, truncation=True)
-            # contentの形式を確認し、文字列として扱う
-            content = generated_output[0]['generated_text'].strip() if isinstance(generated_output[0]['generated_text'], str) else ""
-            if len(content) <= 280:
-                contents.append(content)
-            if len(contents) >= 5:  # 生成したポストが5つに達したら終了
+            content = generated_output[0]['generated_text'].strip()
+            contents.append(content)
+            if len(contents) >= 5: 
                 break
 
         return contents
