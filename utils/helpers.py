@@ -29,17 +29,13 @@ def split_text_into_posts(text, max_length=280):
     current_post = ""
 
     for sentence in sentences:
-        next_post = f"{current_post} {sentence}".strip()
-        if len(next_post) <= max_length:
-            current_post = next_post
+        if len(current_post) + len(sentence) + 1 <= max_length:
+            current_post += (" " + sentence).strip()
         else:
             if current_post:
                 posts.append(current_post)
-                logging.debug(f"Added post: {current_post} (Length: {len(current_post)})")
             current_post = sentence
-
     if current_post:
         posts.append(current_post)
-        logging.debug(f"Added final post: {current_post} (Length: {len(current_post)})")
 
     return posts
