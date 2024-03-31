@@ -4,9 +4,8 @@ from dotenv import load_dotenv
 from ai.content_generator import generate_content
 from api.x_api_client import post_to_x
 from db.database import check_and_update_post_history
-from utils.helpers import setup_logging
+from utils.helpers import setup_logging, split_text_into_posts
 
-# .envファイルから環境変数を読み込む
 load_dotenv()
 
 async def main():
@@ -15,10 +14,12 @@ async def main():
     
     content = generate_content()
     if content:
-        if await check_and_update_post_history(content):
-            await post_to_x(content)
-        else:
-            logging.warning("Duplicate content detected. Skipping posting.")
+        posts = split_text_into_posts(content)  # 生成されたテキストを分割
+        for post in posts:
+            if await check_and_update_post_history(post):
+                await post_to_x([post])  # 変更: 各分割されたテキストを投稿
+            else:
+                logging.warning("Duplicate content detected. Skipping posting.")
     else:
         logging.warning("No content generated. Skipping posting.")
 
