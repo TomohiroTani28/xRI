@@ -1,60 +1,60 @@
 from transformers import pipeline, set_seed
 import logging
 import os
-import re
-from datetime import datetime
 import random
-import itertools  # Import statement added
+import asyncio
+import replicate  # Ensure replicate is installed via pip
 
-model_name = "rinna/japanese-gpt2-medium"
-hf_token = os.getenv("HF_TOKEN")
+# Set up logging
+logging.basicConfig(level=logging.INFO)
 
-def generate_content():
-    set_seed(random.randint(1, 10000))  # Enhance randomness
-    generation_pipeline = pipeline(
-        "text-generation",
-        model=model_name,
-        token=hf_token,
-        device=-1,  # Use CPU
-        truncation=True
-    )
+# Your Replicate API token should be set as an environment variable for security
+REPLICATE_API_TOKEN = os.getenv("REPLICATE_API_TOKEN")
+if not REPLICATE_API_TOKEN:
+    logging.error("REPLICATE_API_TOKEN not set. Please set the environment variable.")
+    exit(1)
 
-    # Dynamic prompt parts for more flexibility and expandability
-    locations = ["ジャカルタ", "バリ", "バンドン", "スラバヤ"]
-    aspects = ["の不動産市場", "での不動産投資", "の不動産開発プロジェクト"]
-    timings = ["最新情報", "2024年トレンド", "投資機会"]
+replicate.api_token = REPLICATE_API_TOKEN
 
-    date_str = datetime.now().strftime("%Y年%m月%d日")
-    base_prompts = [f"インドネシアの{location}{aspect}に関する{timing} {date_str} 更新" 
-                    for location, aspect, timing in itertools.product(locations, aspects, timings)]
+# Example prompts to generate content about Indonesia's real estate market
+prompts = [
+    "2024年のインドネシアの不動産市場のトレンドについて分析してください。",
+    "現在、インドネシアの不動産セクターで最良の投資機会は何ですか？",
+    "2024年にインドネシアで優勢になる不動産開発プロジェクトの予測を提供してください。",
+    "インドネシアの経済成長とその不動産市場との関係について説明してください。",
+]
+async def generate_content_with_llama2(prompt):
+    """
+    Generate content using the Llama 2 API via the replicate client.
+    """
+    try:
+        response = await replicate.models.predict(
+            model="meta/llama-2-70b-chat",
+            input={
+                "prompt": prompt,
+                "temperature": 0.5,
+                "max_tokens": 500,
+                "top_p": 1,
+                "frequency_penalty": 0,
+                "presence_penalty": 0,
+            },
+            version="e3cbd1da23f3c76e9f4454f26f8bd6a7bcf01c540763655efb2fb49cd097e5ee",
+        )
+        return response
+    except Exception as e:
+        logging.error(f"Failed to generate content: {e}")
+        return None
 
-    contents = []
-    for prompt in random.sample(base_prompts, len(base_prompts)):
-        max_length = random.randint(240, 280)
-        generated_output = generation_pipeline(prompt, max_length=max_length, num_return_sequences=1)
-        content = refine_generated_text(generated_output[0]['generated_text'])
+async def main():
+    """
+    Generate content for each prompt using Llama 2 API.
+    """
+    for prompt in prompts:
+        content = await generate_content_with_llama2(prompt)
         if content:
-            contents.append(content)
-            if len(contents) >= 5:
-                break
-
-    return contents if contents else ["Unable to generate content due to an unexpected issue."]
-
-def refine_generated_text(text):
-    if len(text) > 280:
-        sentences = re.split(r'([。！？])', text)
-        refined_text, current_length = "", 0
-        for i in range(0, len(sentences) - 1, 2):
-            if current_length + len(sentences[i] + sentences[i + 1]) <= 280:
-                refined_text += sentences[i] + sentences[i + 1]
-                current_length += len(sentences[i] + sentences[i + 1])
-            else:
-                break
-        text = refined_text
-    return text
+            logging.info(f"Generated content for prompt '{prompt}': {content}")
+        else:
+            logging.info(f"Failed to generate content for prompt '{prompt}'.")
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-    contents = generate_content()
-    for content in contents:
-        print(f"Generated content: {content} (Length: {len(content)})")
+    asyncio.run(main())
