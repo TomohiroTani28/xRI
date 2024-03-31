@@ -9,17 +9,15 @@ hf_token = os.getenv("HF_TOKEN")
 
 def generate_content():
     try:
-        # Specify the model to use (Assuming 'model' variable is already set to the desired model ID)
-        model = "EleutherAI/gpt-neo-2.7B"  # 例としてGPT-Neoを使用; Llama2の適切な代替を選択してください
-        # Load the tokenizer using the Hugging Face token for authentication
-        tokenizer = AutoTokenizer.from_pretrained(model, use_auth_token=hf_token)
+        model = "EleutherAI/gpt-neo-2.7B"
+        # Load the tokenizer using the Hugging Face token
+        tokenizer = AutoTokenizer.from_pretrained(model, token=hf_token)  # Updated argument here
         
-        # Initialize the pipeline for text generation with the model
         generation_pipeline = pipeline(
             "text-generation",
             model=model,
             tokenizer=tokenizer,
-            device=-1,  # Use CPU for execution, as M1 Macs do not support CUDA.
+            device=-1,
         )
 
         prompts = [
@@ -30,9 +28,7 @@ def generate_content():
             "インドネシアの不動産市場の未来"
         ]
 
-        
         selected_prompt = random.choice(prompts)
-        # Generate content with the selected prompt
         generated_outputs = generation_pipeline(selected_prompt, max_length=250, num_return_sequences=1, truncation=True)
         content = generated_outputs[0]['generated_text']
         return content

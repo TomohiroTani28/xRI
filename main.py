@@ -14,10 +14,10 @@ async def main():
     
     content = generate_content()
     if content:
-        posts = split_text_into_posts(content)  # 生成されたテキストを分割
+        posts = split_text_into_posts(content)  # Splits the generated content
         for post in posts:
             if await check_and_update_post_history(post):
-                await post_to_x([post])  # 変更: 各分割されたテキストを投稿
+                await post_to_x([post])  # Posts each segment
             else:
                 logging.warning("Duplicate content detected. Skipping posting.")
     else:
