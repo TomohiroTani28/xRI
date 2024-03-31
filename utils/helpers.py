@@ -19,21 +19,17 @@ def format_datetime(date_time=None, date_format="%Y-%m-%d %H:%M:%S"):
         date_time = datetime.now()
     return date_time.strftime(date_format)
 
-
-    specific_datetime = datetime(2020, 1, 1, 12, 0)
-    formatted_date = format_datetime(specific_datetime)
-    logging.info(f"Formatted specific datetime: {formatted_date}")
-
 def split_text_into_posts(text, max_length=280):
-    """テキストを自然な区切りで分割し、各ポストが280文字を超えないようにします。"""
+    """Splits text into parts with a maximum length, ensuring not to cut words."""
     posts = []
     while text:
         if len(text) <= max_length:
             posts.append(text)
             break
+        # Find the last space within the maximum length
         cut_off = text.rfind(' ', 0, max_length)
-        if cut_off == -1:  # スペースが見つからない場合は、max_lengthで強制的に分割
+        if cut_off == -1:  # If no space found, force split at max_length
             cut_off = max_length
-        posts.append(text[:cut_off])
-        text = text[cut_off:].strip()
+        posts.append(text[:cut_off].rstrip())
+        text = text[cut_off:].lstrip()
     return posts

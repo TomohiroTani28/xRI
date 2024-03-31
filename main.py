@@ -14,10 +14,12 @@ async def main():
     
     content = generate_content()
     if content:
-        posts = split_text_into_posts(content)  # Splits the generated content
+        # Ensure content is clean before splitting and posting
+        content = clean_text(content)
+        posts = split_text_into_posts(content)  # Splits the generated content into posts
         for post in posts:
             if await check_and_update_post_history(post):
-                await post_to_x([post])  # Posts each segment
+                await post_to_x([post])  # Posts each segment to Twitter
             else:
                 logging.warning("Duplicate content detected. Skipping posting.")
     else:
