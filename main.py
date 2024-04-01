@@ -1,7 +1,7 @@
 import asyncio
 import logging
 from ai.content_generator import generate_content
-from api.twitter_client import post_to_twitter
+from api.x_api_client import post_to_twitter
 from utils.helpers import setup_logging, clean_text, split_text_into_posts, add_media, add_hashtags, optimize_hashtags, analyze_post_performance
 from utils.interaction import setup_auto_reply, schedule_qa_sessions
 from utils.content_manager import review_content, edit_content
