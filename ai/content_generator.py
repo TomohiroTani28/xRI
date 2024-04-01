@@ -14,7 +14,7 @@ if not HF_TOKEN:
 os.environ["TRANSFORMERS_CACHE"] = "./transformers_cache_dir"
 
 def setup_llama2_pipeline():
-    model_name = "ELYZA-japanese-Llama-2-13b" 
+    model_name = "elyza/ELYZA-japanese-Llama-2-13b"  # 正しいモデル名に更新
     tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=True)
     model_pipeline = pipeline(
         "text-generation",
@@ -38,7 +38,7 @@ def generate_text_with_llama2(prompt, generation_pipeline):
         )
         return sequences[0]["generated_text"]
     except Exception as e:
-        logging.error(f"Error in text generation: {traceback.format_exc()}")  # 変更: トレースバックのログ記録
+        logging.error(f"Error in text generation: {traceback.format_exc()}")
         return "Error in generation."
 
 async def main():

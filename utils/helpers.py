@@ -6,7 +6,7 @@ def setup_logging(level=logging.INFO):
     logging.basicConfig(level=level, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 def clean_text(text, remove_urls=True, remove_html=True, remove_special_chars=True):
-    text = str(text)  # Ensure text is treated as a string
+    text = str(text)
     if remove_html:
         text = re.sub(r'<.*?>', '', text)
     if remove_urls:

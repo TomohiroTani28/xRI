@@ -32,7 +32,7 @@ async def post_to_x(contents):
         elif response.status_code == 429:
             retry_after = int(response.headers.get('Retry-After', 900))
             logging.warning(f"Rate limit exceeded. Retrying after {retry_after} seconds.")
-            await asyncio.sleep(retry_after)  # 変更: 非同期時間待機
+            await asyncio.sleep(retry_after)
         else:
             await handle_error(response)
 
