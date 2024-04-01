@@ -4,6 +4,7 @@ from ai.content_generator import generate_content
 from api.twitter_client import post_to_twitter
 from utils.helpers import setup_logging, clean_text, split_text_into_posts, add_media, add_hashtags, optimize_hashtags, analyze_post_performance
 from utils.interaction import setup_auto_reply, schedule_qa_sessions
+from utils.content_manager import review_content, edit_content
 
 def prepare_posts(content):
     cleaned_content = clean_text(content)
@@ -26,8 +27,10 @@ async def main():
     ]
 
     generated_texts = await generate_content(prompts)
+    reviewed_texts = [await review_content(text) for text in generated_texts]
+    edited_texts = [await edit_content(text) for text in reviewed_texts if text]
 
-    for content in generated_texts:
+    for content in edited_texts:
         logging.debug(f"Generated content: {content}")
         posts = prepare_posts(content)
 
