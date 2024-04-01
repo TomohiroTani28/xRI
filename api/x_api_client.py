@@ -2,15 +2,16 @@ import asyncio
 import logging
 import json
 from requests_oauthlib import OAuth1Session
-import os
-import random
+from typing import List
+from config import Config
 
-async def post_to_x(contents):
-    api_url = "https://api.twitter.com/2/tweets"
-    consumer_key = os.getenv("CONSUMER_KEY")
-    consumer_secret = os.getenv("CONSUMER_SECRET")
-    access_token = os.getenv("ACCESS_TOKEN")
-    access_token_secret = os.getenv("ACCESS_TOKEN_SECRET")
+async def post_to_twitter(contents: List[str]):
+    config = Config()
+    api_url = config.twitter_api_url
+    consumer_key = config.consumer_key
+    consumer_secret = config.consumer_secret
+    access_token = config.access_token
+    access_token_secret = config.access_token_secret
 
     oauth = OAuth1Session(
         consumer_key,
@@ -20,7 +21,7 @@ async def post_to_x(contents):
     )
 
     for content in contents:
-        await asyncio.sleep(random.randint(1, 5))
+        await asyncio.sleep(config.post_interval)
         payload = json.dumps({"text": content})
         headers = {"Content-Type": "application/json"}
 
@@ -29,10 +30,6 @@ async def post_to_x(contents):
 
         if response.status_code == 201:
             logging.info("Content successfully posted to Twitter.")
-        elif response.status_code == 429:
-            retry_after = int(response.headers.get('Retry-After', 900))
-            logging.warning(f"Rate limit exceeded. Retrying after {retry_after} seconds.")
-            await asyncio.sleep(retry_after)
         else:
             await handle_error(response)
 
@@ -44,3 +41,14 @@ async def handle_error(response):
     except Exception as e:
         error_message += f" Additionally, failed to parse JSON response: {str(e)}"
     logging.error(error_message)
+
+    if response.status_code >= 500:
+        retry_after = int(response.headers.get('Retry-After', 60))
+        logging.warning(f"Server error occurred. Retrying after {retry_after} seconds.")
+        await asyncio.sleep(retry_after)
+        await post_to_twitter([error_message])
+    elif response.status_code == 401:
+        logging.error("Authentication error occurred. Please check your credentials.")
+    elif response.status_code >= 400:
+        logging.error("Client error occurred. Terminating process.")
+        raise Exception(error_message)

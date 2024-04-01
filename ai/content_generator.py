@@ -1,53 +1,40 @@
 import logging
-from transformers import AutoTokenizer, pipeline
+from transformers import AutoTokenizer, AutoModelForCausalLM
 import torch
-import os
-import traceback
+from typing import List
+from config import Config
+from ai.quality_checker import check_content_quality
+from ai.data_enrichment import enrich_content_with_data
 
-logging.basicConfig(level=logging.INFO)
-
-HF_TOKEN = os.getenv("HF_TOKEN")
-if not HF_TOKEN:
-    logging.error("HF_TOKEN not set. Please set the environment variable.")
-    exit(1)
-
-os.environ["TRANSFORMERS_CACHE"] = "./transformers_cache_dir"
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def setup_llama2_pipeline():
-    model_name = "elyza/ELYZA-japanese-Llama-2-13b"  # 正しいモデル名に更新
+    config = Config()
+    model_name = config.model_name
     tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=True)
-    model_pipeline = pipeline(
-        "text-generation",
-        model=model_name,
-        tokenizer=tokenizer,
-        torch_dtype=torch.float16,
-        device=-1
-    )
-    return model_pipeline
+    model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.float16, device_map="auto")
+    model = model.to(device)
+    return model, tokenizer
 
-def generate_text_with_llama2(prompt, generation_pipeline):
+def generate_text_with_llama2(prompt: str, model, tokenizer, max_length: int = 500, num_beams: int = 3, top_p: float = 0.9, temperature: float = 0.7) -> str:
     try:
-        sequences = generation_pipeline(
-            prompt,
-            do_sample=True,
-            max_length=200,
-            top_k=50,
-            temperature=0.7,
-            num_return_sequences=1,
-            truncation=True
-        )
-        return sequences[0]["generated_text"]
+        inputs = tokenizer(prompt, return_tensors="pt").to(device)
+        output = model.generate(**inputs, max_new_tokens=max_length, num_beams=num_beams, early_stopping=True, top_p=top_p, temperature=temperature)
+        generated_text = tokenizer.decode(output[0], skip_special_tokens=True)
+        return generated_text
     except Exception as e:
-        logging.error(f"Error in text generation: {traceback.format_exc()}")
+        logging.error(f"Error in text generation: {e}")
         return "Error in generation."
 
-async def main():
-    prompts = ["2024年のインドネシアの不動産市場のトレンドについて分析してください。"]
-    generation_pipeline = setup_llama2_pipeline()
+async def generate_content(prompts: List[str]):
+    model, tokenizer = setup_llama2_pipeline()
+    generated_texts = []
     for prompt in prompts:
-        result = generate_text_with_llama2(prompt, generation_pipeline)
+        result = generate_text_with_llama2(prompt, model, tokenizer)
+        generated_texts.append(result)
         logging.info(f"Generated text: {result}")
-
-if __name__ == "__main__":
-    import asyncio
-    asyncio.run(main())
+    
+    checked_texts = await check_content_quality(generated_texts)
+    enriched_texts = await enrich_content_with_data(checked_texts)
+    return enriched_texts

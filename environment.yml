@@ -11,3 +11,5 @@ dependencies:
       - python-dotenv
       - transformers
       - torch
+      - requests-oauthlib
+      - tweepy
