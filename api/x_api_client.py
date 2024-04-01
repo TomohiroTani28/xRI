@@ -3,7 +3,6 @@ import logging
 import json
 from requests_oauthlib import OAuth1Session
 import os
-import time
 import random
 
 async def post_to_x(contents):
@@ -21,7 +20,7 @@ async def post_to_x(contents):
     )
 
     for content in contents:
-        await asyncio.sleep(random.randint(1, 5))  # Slight delay to avoid burst requests
+        await asyncio.sleep(random.randint(1, 5))
         payload = json.dumps({"text": content})
         headers = {"Content-Type": "application/json"}
 
@@ -33,8 +32,7 @@ async def post_to_x(contents):
         elif response.status_code == 429:
             retry_after = int(response.headers.get('Retry-After', 900))
             logging.warning(f"Rate limit exceeded. Retrying after {retry_after} seconds.")
-            time.sleep(retry_after)  # Adjust to async wait if necessary for your environment
-            # Consider a retry strategy here
+            await asyncio.sleep(retry_after)  # 変更: 非同期時間待機
         else:
             await handle_error(response)
 
