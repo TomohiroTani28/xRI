@@ -13,7 +13,7 @@ def setup_llama2_pipeline():
     config = Config()
     model_name = config.model_name
     tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=True)
-    model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.float16, device_map="auto")
+    model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.float16, device_map="auto", offload_folder="offload")
     model = model.to(device)
     return model, tokenizer
 

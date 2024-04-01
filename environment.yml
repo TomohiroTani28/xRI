@@ -13,3 +13,4 @@ dependencies:
       - torch
       - requests-oauthlib
       - tweepy
+      - safetensors
